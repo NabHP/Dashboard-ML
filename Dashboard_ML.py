@@ -18,8 +18,6 @@ feature prediction tool.
 ''')
 
 # Load model and data
-control_group_sample = pd.read_csv('control_group_sample1000.csv')
-treatment_group_sample = pd.read_csv('treatment_group_sample1000.csv')
 model_path = 'kingsman_model_bank_deposit_lgbm_tuned.sav'
 final_model = joblib.load(open(model_path, 'rb'))
 X_new = pd.read_csv('X_new_for_inference.csv')
@@ -30,20 +28,24 @@ y_proba_new = final_model.predict_proba(X_new)[:, 1]  # Get the probability for 
 X_new['predicted_proba'] = y_proba_new
 
 # Sort Treatment Group by predicted probability (descending order)
-treatment_group = treatment_group_sample
-control_group = control_group_sample
+treatment_group = X_new.sort_values(by='predicted_proba', ascending=False).iloc[:len(X_new)//2]
+control_group = X_new.drop(treatment_group.index)
+
+# randomly sample 1000 rows from control group and treatment group
+treatment_group_sample = treatment_group.sample(n=1000, random_state=123)
+control_group_sample = control_group.sample(n=1000, random_state=123)
 
 # Simulating actual outcomes for the Treatment Group
-treatment_group['actual_deposit'] = y_new.loc[treatment_group.index]
-control_group['actual_deposit'] = y_new.loc[control_group.index]
+treatment_group_sample['actual_deposit'] = y_new.loc[treatment_group_sample.index]
+control_group_sample['actual_deposit'] = y_new.loc[control_group_sample.index]
 
 # Add predicted labels based on a threshold (e.g., 0.5)
-treatment_group['predicted'] = (treatment_group['predicted_proba'] >= 0.5).astype(int)
-control_group['predicted'] = (control_group['predicted_proba'] >= 0.5).astype(int)
+treatment_group_sample['predicted'] = (treatment_group_sample['predicted_proba'] >= 0.5).astype(int)
+control_group_sample['predicted'] = (control_group_sample['predicted_proba'] >= 0.5).astype(int)
 
 # Calculate conversion rates
-treatment_conversion_rate = treatment_group['actual_deposit'].mean()
-control_conversion_rate = control_group['actual_deposit'].mean()
+treatment_conversion_rate_sample = treatment_group_sample['actual_deposit'].mean()
+control_conversion_rate_sample = control_group['actual_deposit'].mean()
 uplift = treatment_conversion_rate - control_conversion_rate
 
 # Cost and Revenue Calculations
@@ -51,8 +53,8 @@ deposit_amount = 31.75
 marketing_cost = 1.7228  # Cost per customer
 
 # Gross Revenue Calculation
-control_revenue = np.sum(control_group['predicted']) * deposit_amount
-treatment_revenue = np.sum(treatment_group['predicted']) * deposit_amount
+control_revenue = np.sum(control_group_sample['predicted']) * deposit_amount
+treatment_revenue = np.sum(treatment_group_sample['predicted']) * deposit_amount
 
 # Marketing Costs
 control_cost = len(control_group_sample) * marketing_cost
