@@ -55,8 +55,8 @@ control_revenue = np.sum(control_group['predicted']) * deposit_amount
 treatment_revenue = np.sum(treatment_group['predicted']) * deposit_amount
 
 # Marketing Costs
-control_cost = len(control_group) * marketing_cost
-treatment_cost = len(treatment_group) * marketing_cost
+control_cost = len(control_group_sample) * marketing_cost
+treatment_cost = len(treatment_group_sample) * marketing_cost
 
 # Net Revenue after Marketing Cost
 control_net_revenue = control_revenue - control_cost
@@ -82,18 +82,18 @@ with tab1:
 
     with col1:
         st.subheader("Control Group")
-        st.write(control_group[['actual_deposit', 'predicted', 'predicted_proba']].head())
+        st.write(control_group_sample[['actual_deposit', 'predicted', 'predicted_proba']].head())
         st.write(f"Control Group Conversion Rate: **{control_conversion_rate:.2%}**")
 
     with col2:
         st.subheader("Treatment Group")
-        st.write(treatment_group[['actual_deposit', 'predicted', 'predicted_proba']].head())
+        st.write(treatment_group_sample[['actual_deposit', 'predicted', 'predicted_proba']].head())
         st.write(f"Treatment Group Conversion Rate: **{treatment_conversion_rate:.2%}**")
 
 # Second Tab: Confusion Matrix and Revenue Uplift
 with tab2:
     st.header("Confusion Matrix and Revenue Uplift Calculation")
-    st.markdown('''This section shows the accuracy of our models with confusion matrices for both treatment and control groups, followed by the net revenue uplift, which measures the financial impact of the treatment compared to the control.''')
+    st.markdown('''This section shows the accuracy of our models with confusion matrices for treatment groups, followed by the net revenue uplift from the control and treatment groups, which measures the financial impact of the treatment compared to the control.''')
     st.markdown("---")
 
     # First Row: Confusion Matrices 
