@@ -1,0 +1,15 @@
+setuptools
+streamlit
+scikit-learn
+numpy
+scipy
+pandas
+matplotlib
+seaborn
+joblib
+threadpoolctl
+missingno
+ipython
+imbalanced-learn
+category_encoders
+lightgbm
