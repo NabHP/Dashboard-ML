@@ -34,12 +34,12 @@ treatment_group = treatment_group_sample
 control_group = control_group_sample
 
 # Simulating actual outcomes for the Treatment Group
-treatment_group['actual_deposit'] = y_new.loc[treatment_group_sample.index]
-control_group['actual_deposit'] = y_new.loc[control_group_sample.index]
+treatment_group['actual_deposit'] = y_new.loc[treatment_group.index]
+control_group['actual_deposit'] = y_new.loc[control_group.index]
 
 # Add predicted labels based on a threshold (e.g., 0.5)
-treatment_group['predicted'] = (treatment_group_sample['predicted_proba'] >= 0.5).astype(int)
-control_group['predicted'] = (control_group_sample['predicted_proba'] >= 0.5).astype(int)
+treatment_group['predicted'] = (treatment_group['predicted_proba'] >= 0.5).astype(int)
+control_group['predicted'] = (control_group['predicted_proba'] >= 0.5).astype(int)
 
 # Calculate conversion rates
 treatment_conversion_rate = treatment_group['actual_deposit'].mean()
