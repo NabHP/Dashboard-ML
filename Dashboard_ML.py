@@ -22,8 +22,8 @@ model_path = 'kingsman_model_bank_deposit_lgbm_tuned.sav'
 final_model = joblib.load(open(model_path, 'rb'))
 X_new = pd.read_csv('X_new_for_inference.csv')
 y_new = pd.read_csv('y_new_actual.csv')
-treatment_group_sample = pd.read_csv('treatment_group_sample1000.csv')
-control_group_sample = pd.read_csv('control_group_sample1000.csv')
+# treatment_group_sample = pd.read_csv('treatment_group_sample1000.csv')
+# control_group_sample = pd.read_csv('control_group_sample1000.csv')
 
 # Predict probabilities
 y_proba_new = final_model.predict_proba(X_new)[:, 1]  # Get the probability for the positive class (deposit)
@@ -33,15 +33,9 @@ X_new['predicted_proba'] = y_proba_new
 treatment_group = X_new.sort_values(by='predicted_proba', ascending=False).iloc[:len(X_new)//2]
 control_group = X_new.drop(treatment_group.index)
 
-# Ensure the sample DataFrames have correct indices
-treatment_group_sample = treatment_group_sample.reset_index(drop=True)
-control_group_sample = control_group_sample.reset_index(drop=True)
-treatment_group = treatment_group.reset_index(drop=True)
-control_group = control_group.reset_index(drop=True)
-
-# Assign the correct predicted probabilities to the samples based on their new indices
-treatment_group_sample['predicted_proba'] = treatment_group.loc[treatment_group_sample.index, 'predicted_proba']
-control_group_sample['predicted_proba'] = control_group.loc[control_group_sample.index, 'predicted_proba']
+# Ensure randomness in sample selection
+treatment_group_sample = X_new.sample(n=1000, random_state=123).sort_values(by='predicted_proba', ascending=False)
+control_group_sample = X_new.drop(treatment_group_sample.index).sample(n=1000, random_state=123)
 
 # Simulating actual outcomes for the Treatment and Control Groups based on the sample
 treatment_group_sample['actual_deposit'] = y_new.loc[treatment_group_sample.index].reset_index(drop=True)
@@ -73,19 +67,27 @@ control_net_revenue = control_revenue - control_cost
 treatment_net_revenue = treatment_revenue - treatment_cost
 uplift_net_revenue = treatment_net_revenue - control_net_revenue
 
+# Streamlit UI Layout with Tabs
+st.title("Kingsman Bank Deposit Prediction Dashboard")
+
+# Define tabs
+tab1, tab2, tab3 = st.tabs(["Control vs Treatment", "Confusion Matrix & Revenue Uplift", "Interactive Feature Prediction"])
+
+
 # Now you can display the results
-st.subheader("Control vs Treatment Dataset Comparison")
-col1, col2 = st.columns(2)
+with tab1:
+    st.subheader("Control vs Treatment Dataset Comparison")
+    col1, col2 = st.columns(2)
 
-with col1:
-    st.subheader("Control Group")
-    st.write(control_group_sample[['actual_deposit', 'predicted', 'predicted_proba']].head())
-    st.write(f"Control Group Conversion Rate: **{control_conversion_rate_sample:.2%}**")
+    with col1:
+        st.subheader("Control Group")
+        st.write(control_group_sample[['actual_deposit', 'predicted', 'predicted_proba']].head())
+        st.write(f"Control Group Conversion Rate: **{control_conversion_rate_sample:.2%}**")
 
-with col2:
-    st.subheader("Treatment Group")
-    st.write(treatment_group_sample[['actual_deposit', 'predicted', 'predicted_proba']].head())
-    st.write(f"Treatment Group Conversion Rate: **{treatment_conversion_rate_sample:.2%}**")
+    with col2:
+        st.subheader("Treatment Group")
+        st.write(treatment_group_sample[['actual_deposit', 'predicted', 'predicted_proba']].head())
+        st.write(f"Treatment Group Conversion Rate: **{treatment_conversion_rate_sample:.2%}**")
 
 
 
