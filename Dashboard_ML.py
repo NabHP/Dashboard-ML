@@ -33,9 +33,15 @@ X_new['predicted_proba'] = y_proba_new
 treatment_group = X_new.sort_values(by='predicted_proba', ascending=False).iloc[:len(X_new)//2]
 control_group = X_new.drop(treatment_group.index)
 
-# Assign the correct predicted probabilities to the samples
-treatment_group_sample['predicted_proba'] = treatment_group['predicted_proba'].loc[treatment_group_sample.index].reset_index(drop=True)
-control_group_sample['predicted_proba'] = control_group['predicted_proba'].loc[control_group_sample.index].reset_index(drop=True)
+# Ensure the sample DataFrames have correct indices
+treatment_group_sample = treatment_group_sample.reset_index(drop=True)
+control_group_sample = control_group_sample.reset_index(drop=True)
+treatment_group = treatment_group.reset_index(drop=True)
+control_group = control_group.reset_index(drop=True)
+
+# Assign the correct predicted probabilities to the samples based on their new indices
+treatment_group_sample['predicted_proba'] = treatment_group.loc[treatment_group_sample.index, 'predicted_proba']
+control_group_sample['predicted_proba'] = control_group.loc[control_group_sample.index, 'predicted_proba']
 
 # Simulating actual outcomes for the Treatment and Control Groups based on the sample
 treatment_group_sample['actual_deposit'] = y_new.loc[treatment_group_sample.index].reset_index(drop=True)
@@ -80,6 +86,7 @@ with col2:
     st.subheader("Treatment Group")
     st.write(treatment_group_sample[['actual_deposit', 'predicted', 'predicted_proba']].head())
     st.write(f"Treatment Group Conversion Rate: **{treatment_conversion_rate_sample:.2%}**")
+
 
 
 # Second Tab: Confusion Matrix and Revenue Uplift
