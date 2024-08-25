@@ -25,6 +25,10 @@ y_new = pd.read_csv('y_new_actual.csv')
 treatment_group_sample = pd.read_csv('treatment_group_sample1000.csv')
 control_group_sample = pd.read_csv('control_group_sample1000.csv')
 
+# Predict probabilities for the entire dataset
+y_proba_new = final_model.predict_proba(X_new)[:, 1]  # Get the probability for the positive class (deposit)
+X_new['predicted_proba'] = y_proba_new
+
 # Predict probabilities using the model for the treatment and control sample
 treatment_group_sample['predicted_proba'] = final_model.predict_proba(treatment_group_sample.drop(columns=['predicted_deposit', 'predicted_proba']))[:, 1]
 control_group_sample['predicted_proba'] = final_model.predict_proba(control_group_sample.drop(columns=['predicted_deposit', 'predicted_proba']))[:, 1]
