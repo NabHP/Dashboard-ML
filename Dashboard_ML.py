@@ -33,13 +33,13 @@ X_new['predicted_proba'] = y_proba_new
 treatment_group = X_new.sort_values(by='predicted_proba', ascending=False).iloc[:len(X_new)//2]
 control_group = X_new.drop(treatment_group.index)
 
-# Ensure randomness in sample selection
-treatment_group_sample = X_new.sample(n=1000, random_state=123).sort_values(by='predicted_proba', ascending=False)
-control_group_sample = X_new.drop(treatment_group_sample.index).sample(n=1000, random_state=123)
+# Ensure randomness in sample selection with different sources for treatment and control
+treatment_group_sample = treatment_group.sample(n=1000, random_state=123).reset_index(drop=True)
+control_group_sample = control_group.sample(n=1000, random_state=123).reset_index(drop=True)
 
 # Simulating actual outcomes for the Treatment and Control Groups based on the sample
-treatment_group_sample['actual_deposit'] = y_new.loc[treatment_group_sample.index].reset_index(drop=True)
-control_group_sample['actual_deposit'] = y_new.loc[control_group_sample.index].reset_index(drop=True)
+treatment_group_sample['actual_deposit'] = y_new.loc[treatment_group_sample.index].values
+control_group_sample['actual_deposit'] = y_new.loc[control_group_sample.index].values
 
 # Add predicted labels based on a threshold (e.g., 0.5)
 treatment_group_sample['predicted'] = (treatment_group_sample['predicted_proba'] >= 0.5).astype(int)
