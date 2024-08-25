@@ -5,8 +5,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import recall_score, confusion_matrix, classification_report
-import lime
-import lime.lime_tabular
 
 # Set Streamlit page configuration (must be the first Streamlit command)
 st.set_page_config(page_title='Bank Deposit Prediction', layout='wide')
@@ -62,22 +60,6 @@ uplift_net_revenue = treatment_net_revenue - control_net_revenue
 report = classification_report(y_new, (y_proba_new >= 0.5).astype(int), output_dict=True)
 report_df = pd.DataFrame(report).transpose()
 
-# LIME Explanation Setup
-explainer = lime.lime_tabular.LimeTabularExplainer(
-    training_data=np.array(X_new),  # Use your preprocessed training data
-    feature_names=X_new.columns,
-    class_names=['No Deposit', 'Deposit'],  # Adjust based on your target classes
-    mode='classification'
-)
-
-def explain_instance(instance_index, model, explainer):
-    exp = explainer.explain_instance(
-        data_row=X_new.iloc[instance_index],
-        predict_fn=model.predict_proba,
-        num_features=10  # Adjust based on how many features you want to display
-    )
-    return exp
-
 # Streamlit UI Layout with Tabs
 st.title("Kingsman Bank Deposit Prediction Dashboard")
 
@@ -124,6 +106,31 @@ with tab2:
         ax_revenue.set_ylabel('Net Revenue (€)')
         st.pyplot(fig_revenue)
         
+# Tab 2: Confusion Matrix, Revenue Uplift, and Feature Importance
+with tab2:
+    st.header("Revenue Uplift Calculation, Confusion Matrix, and Feature Importance")
+    st.markdown('''This section shows the net revenue uplift from the control and treatment groups, measuring the financial impact of the treatment compared to the control. It also presents the accuracy of our models with a confusion matrix for the treatment group and displays the importance of each feature used by the model.''')
+    st.markdown("---")
+
+    # First Row: Net Revenue Uplift and Bar Chart 
+    st.subheader("Net Revenue Uplift Calculation (After Marketing Costs)")
+    col3, col4 = st.columns([1, 1])
+
+    with col3:
+        st.write(f"Control Group Gross Revenue: **€{control_revenue:,.2f}**")
+        st.write(f"Treatment Group Gross Revenue: **€{treatment_revenue:,.2f}**")
+        st.write(f"Control Group Marketing Cost: **€{control_cost:,.2f}**")
+        st.write(f"Treatment Group Marketing Cost: **€{treatment_cost:,.2f}**")
+        st.write(f"Control Group Net Revenue: **€{control_net_revenue:,.2f}**")
+        st.write(f"Treatment Group Net Revenue: **€{treatment_net_revenue:,.2f}**")
+        st.write(f"Net Revenue Uplift: **€{uplift_net_revenue:,.2f}**")
+
+    with col4:
+        fig_revenue, ax_revenue = plt.subplots(figsize=(6,4))
+        ax_revenue.bar(['Control Group Net Revenue', 'Treatment Group Net Revenue'], [control_net_revenue, treatment_net_revenue], color=['green', 'red'])
+        ax_revenue.set_ylabel('Net Revenue (€)')
+        st.pyplot(fig_revenue)
+        
     # Second Row: Confusion Matrix and Feature Importance
     st.subheader("Confusion Matrix - Treatment Group & Feature Importance")
     col5, col6 = st.columns([1, 1])
@@ -138,17 +145,10 @@ with tab2:
         
     with col6:
         fig_imp, ax_imp = plt.subplots(figsize=(6, 4))
-        sns.barplot(x='Importance', y='Feature', data=importance_df, palette="viridis")
+        sns.barplot(x='Importance', y='Feature', data=feature_importances, palette="viridis")
         ax_imp.set_title('Feature Importance')
         st.pyplot(fig_imp)
         
-    # LIME Explanation for Specific Instance
-    st.subheader("LIME Explanation for Individual Prediction")
-    instance_index = st.slider('Select Instance Index', 0, len(X_new) - 1, 0)
-    if st.button('Show Explanation'):
-        exp = explain_instance(instance_index, final_model, explainer)
-        fig = exp.as_pyplot_figure()
-        st.pyplot(fig)
    
 # Tab 3: Interactive Feature Prediction
 with tab3:
