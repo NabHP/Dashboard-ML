@@ -67,12 +67,14 @@ control_net_revenue = control_revenue - control_cost
 treatment_net_revenue = treatment_revenue - treatment_cost
 uplift_net_revenue = treatment_net_revenue - control_net_revenue
 
+# Classification Report
+report = classification_report(y_new, (y_proba_new >= 0.5).astype(int), output_dict=True)
+report_df = pd.DataFrame(report).transpose()
 # Streamlit UI Layout with Tabs
 st.title("Kingsman Bank Deposit Prediction Dashboard")
 
 # Define tabs
 tab1, tab2, tab3 = st.tabs(["Control vs Treatment", "Confusion Matrix & Revenue Uplift", "Interactive Feature Prediction"])
-
 
 # Now you can display the results
 with tab1:
