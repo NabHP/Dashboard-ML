@@ -176,14 +176,18 @@ with tab3:
                 unique_values = X_new[feature].unique()
                 user_input[feature] = st.selectbox(f"{feature}", unique_values)
 
-    # Convert user input to DataFrame and make prediction
+    # Add slider for threshold adjustment
+    st.subheader("Adjust Prediction Threshold")
+    threshold = st.slider("Select Threshold", min_value=0.0, max_value=1.0, value=0.5, step=0.01)
+
+    # Convert user input to DataFrame and make prediction with the selected threshold
     input_df = pd.DataFrame([user_input])
     user_proba = final_model.predict_proba(input_df)[:, 1]
-    user_prediction = (user_proba >= 0.5).astype(int)
+    user_prediction = (user_proba >= threshold).astype(int)
 
     st.subheader("Prediction Results")
     st.write(f"Successful Rate of Deposit: **{user_proba[0] * 100:.2f}%**")
-    st.write(f"Predicted Deposit: **{'Yes' if user_prediction[0] == 1 else 'No'}**")
+    st.write(f"Predicted Deposit: **{'Yes' if user_prediction[0] == 1 else 'No'}** at a threshold of {threshold:.2f}")
 
     # Classification Report
     st.subheader("Classification Report")
