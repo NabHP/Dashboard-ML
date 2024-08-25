@@ -134,6 +134,7 @@ with tab3:
 
     # Sliders for numerical features (10 inputs)
     numeric_features = X_new.select_dtypes(include=[np.number]).columns
+    numeric_features = [feature for feature in numeric_features if feature != 'predicted_proba']
     for idx, feature in enumerate(numeric_features):
         if idx % 3 == 0:
             with col1:
