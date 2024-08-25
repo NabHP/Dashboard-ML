@@ -22,25 +22,12 @@ model_path = 'kingsman_model_bank_deposit_lgbm_tuned.sav'
 final_model = joblib.load(open(model_path, 'rb'))
 X_new = pd.read_csv('X_new_for_inference.csv')
 y_new = pd.read_csv('y_new_actual.csv')
-# treatment_group_sample = pd.read_csv('treatment_group_sample1000.csv')
-# control_group_sample = pd.read_csv('control_group_sample1000.csv')
+treatment_group_sample = pd.read_csv('treatment_group_sample1000.csv')
+control_group_sample = pd.read_csv('control_group_sample1000.csv')
 
-# Predict probabilities
-y_proba_new = final_model.predict_proba(X_new)[:, 1]  # Get the probability for the positive class (deposit)
-X_new['predicted_proba'] = y_proba_new
-
-# Sort Treatment Group by predicted probability (descending order)
-treatment_group = X_new.sort_values(by='predicted_proba', ascending=False).iloc[:len(X_new)//2]
-control_group = X_new.drop(treatment_group.index)
-
-# Ensure randomness in sample selection with different sources for treatment and control
-treatment_group_sample = treatment_group.sample(n=1000, random_state=123).reset_index(drop=True)
-treatment_group_sample = treatment_group_sample.sort_values(by='predicted_proba', ascending=False).reset_index(drop=True)
-control_group_sample = control_group.sample(n=1000, random_state=123).reset_index(drop=True)
-
-# Simulating actual outcomes for the Treatment and Control Groups based on the sample
-treatment_group_sample['actual_deposit'] = y_new.loc[treatment_group_sample.index].values
-control_group_sample['actual_deposit'] = y_new.loc[control_group_sample.index].values
+# Predict probabilities using the model
+treatment_group_sample['predicted_proba'] = final_model.predict_proba(treatment_group_sample.drop(columns=['actual_deposit']))[:, 1]
+control_group_sample['predicted_proba'] = final_model.predict_proba(control_group_sample.drop(columns=['actual_deposit']))[:, 1]
 
 # Add predicted labels based on a threshold (e.g., 0.5)
 treatment_group_sample['predicted'] = (treatment_group_sample['predicted_proba'] >= 0.5).astype(int)
