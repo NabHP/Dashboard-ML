@@ -67,7 +67,7 @@ features = X_new.columns
 
 # Create a DataFrame for better visualization
 importance_df = pd.DataFrame({'Feature': features, 'Importance': importances})
-importance_df = importance_df.sort_values(by='Importance', ascending=False
+importance_df = importance_df.sort_values(by='Importance', ascending=False)
 
                                           
 # Streamlit UI Layout with Tabs
