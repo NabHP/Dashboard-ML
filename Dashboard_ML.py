@@ -25,15 +25,19 @@ y_new = pd.read_csv('y_new_actual.csv')
 treatment_group_sample = pd.read_csv('treatment_group_sample1000.csv')
 control_group_sample = pd.read_csv('control_group_sample1000.csv')
 
-# Predict probabilities using the model
-treatment_group_sample['predicted_proba'] = final_model.predict_proba(treatment_group_sample.drop(columns=['actual_deposit']))[:, 1]
-control_group_sample['predicted_proba'] = final_model.predict_proba(control_group_sample.drop(columns=['actual_deposit']))[:, 1]
+# Predict probabilities using the model for the treatment and control samples
+treatment_group_sample['predicted_proba'] = final_model.predict_proba(treatment_group_sample.drop(columns=['predicted_deposit', 'predicted_proba']))[:, 1]
+control_group_sample['predicted_proba'] = final_model.predict_proba(control_group_sample.drop(columns=['predicted_deposit', 'predicted_proba']))[:, 1]
+
+# Ensure alignment of indices to match actual outcomes from y_new
+treatment_group_sample['actual_deposit'] = y_new.loc[treatment_group_sample.index].values
+control_group_sample['actual_deposit'] = y_new.loc[control_group_sample.index].values
 
 # Add predicted labels based on a threshold (e.g., 0.5)
 treatment_group_sample['predicted'] = (treatment_group_sample['predicted_proba'] >= 0.5).astype(int)
 control_group_sample['predicted'] = (control_group_sample['predicted_proba'] >= 0.5).astype(int)
 
-# Calculate conversion rates
+# Calculate conversion rates using the actual outcomes
 treatment_conversion_rate_sample = treatment_group_sample['actual_deposit'].mean()
 control_conversion_rate_sample = control_group_sample['actual_deposit'].mean()
 uplift = treatment_conversion_rate_sample - control_conversion_rate_sample
