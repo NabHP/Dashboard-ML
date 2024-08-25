@@ -22,6 +22,8 @@ model_path = 'kingsman_model_bank_deposit_lgbm_tuned.sav'
 final_model = joblib.load(open(model_path, 'rb'))
 X_new = pd.read_csv('X_new_for_inference.csv')
 y_new = pd.read_csv('y_new_actual.csv')
+treatment_group_sample = pd.read_csv('treatment_group_sample1000.csv')
+control_group_sample = pd.read_csv('control_group_sample1000.csv')
 
 # Predict probabilities
 y_proba_new = final_model.predict_proba(X_new)[:, 1]  # Get the probability for the positive class (deposit)
@@ -31,11 +33,7 @@ X_new['predicted_proba'] = y_proba_new
 treatment_group = X_new.sort_values(by='predicted_proba', ascending=False).iloc[:len(X_new)//2]
 control_group = X_new.drop(treatment_group.index)
 
-# randomly sample 1000 rows from control group and treatment group
-treatment_group_sample = treatment_group.sample(n=1000, random_state=123)
-control_group_sample = control_group.sample(n=1000, random_state=123)
-
-# Simulating actual outcomes for the Treatment Group
+# Simulating actual outcomes for the Treatment and Control Groups
 treatment_group_sample['actual_deposit'] = y_new.loc[treatment_group_sample.index]
 control_group_sample['actual_deposit'] = y_new.loc[control_group_sample.index]
 
@@ -45,8 +43,8 @@ control_group_sample['predicted'] = (control_group_sample['predicted_proba'] >= 
 
 # Calculate conversion rates
 treatment_conversion_rate_sample = treatment_group_sample['actual_deposit'].mean()
-control_conversion_rate_sample = control_group['actual_deposit'].mean()
-uplift = treatment_conversion_rate - control_conversion_rate
+control_conversion_rate_sample = control_group_sample['actual_deposit'].mean()
+uplift = treatment_conversion_rate_sample - control_conversion_rate_sample
 
 # Cost and Revenue Calculations
 deposit_amount = 31.75
