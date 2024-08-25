@@ -33,9 +33,13 @@ X_new['predicted_proba'] = y_proba_new
 treatment_group = X_new.sort_values(by='predicted_proba', ascending=False).iloc[:len(X_new)//2]
 control_group = X_new.drop(treatment_group.index)
 
-# Simulating actual outcomes for the Treatment and Control Groups
-treatment_group_sample['actual_deposit'] = y_new.loc[treatment_group_sample.index]
-control_group_sample['actual_deposit'] = y_new.loc[control_group_sample.index]
+# Assign the correct predicted probabilities to the samples
+treatment_group_sample['predicted_proba'] = treatment_group['predicted_proba'].loc[treatment_group_sample.index].reset_index(drop=True)
+control_group_sample['predicted_proba'] = control_group['predicted_proba'].loc[control_group_sample.index].reset_index(drop=True)
+
+# Simulating actual outcomes for the Treatment and Control Groups based on the sample
+treatment_group_sample['actual_deposit'] = y_new.loc[treatment_group_sample.index].reset_index(drop=True)
+control_group_sample['actual_deposit'] = y_new.loc[control_group_sample.index].reset_index(drop=True)
 
 # Add predicted labels based on a threshold (e.g., 0.5)
 treatment_group_sample['predicted'] = (treatment_group_sample['predicted_proba'] >= 0.5).astype(int)
@@ -63,37 +67,25 @@ control_net_revenue = control_revenue - control_cost
 treatment_net_revenue = treatment_revenue - treatment_cost
 uplift_net_revenue = treatment_net_revenue - control_net_revenue
 
-# Classification Report
-report = classification_report(y_new, (y_proba_new >= 0.5).astype(int), output_dict=True)
-report_df = pd.DataFrame(report).transpose()
+# Now you can display the results
+st.subheader("Control vs Treatment Dataset Comparison")
+col1, col2 = st.columns(2)
 
-# Streamlit UI Layout with Tabs
-st.title("Kingsman Bank Deposit Prediction Dashboard")
+with col1:
+    st.subheader("Control Group")
+    st.write(control_group_sample[['actual_deposit', 'predicted', 'predicted_proba']].head())
+    st.write(f"Control Group Conversion Rate: **{control_conversion_rate_sample:.2%}**")
 
-# Tabs
-tab1, tab2, tab3 = st.tabs(["Control vs Treatment", "Confusion Matrix & Revenue Uplift", "Interactive Feature Prediction"])
+with col2:
+    st.subheader("Treatment Group")
+    st.write(treatment_group_sample[['actual_deposit', 'predicted', 'predicted_proba']].head())
+    st.write(f"Treatment Group Conversion Rate: **{treatment_conversion_rate_sample:.2%}**")
 
-# First Tab: Control vs. Treatment Dataset Comparison
-with tab1:
-    st.header("Control vs. Treatment Dataset Comparison")
-    st.markdown('''These tables allow you to compare the control and treatment groups based on their predicted probabilities, actual outcomes, and conversion rates. The treatment group consists of customers who are more likely to subscribe to a deposit product, while the control group includes those less likely.''')
-    st.markdown("---")
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.subheader("Control Group")
-        st.write(control_group_sample[['actual_deposit', 'predicted', 'predicted_proba']].head())
-        st.write(f"Control Group Conversion Rate: **{control_conversion_rate_sample:.2%}**")
-
-    with col2:
-        st.subheader("Treatment Group")
-        st.write(treatment_group_sample[['actual_deposit', 'predicted', 'predicted_proba']].head())
-        st.write(f"Treatment Group Conversion Rate: **{treatment_conversion_rate_sample:.2%}**")
 
 # Second Tab: Confusion Matrix and Revenue Uplift
 with tab2:
-    st.header("Revenue Uplift Calculation, Feature Importance and Confusion Matrix")
-    st.markdown('''"This section shows the net revenue uplift from the control and treatment groups, measuring the financial impact of the treatment compared to the control. It also presents the accuracy of our models with a confusion matrix for the treatment group and highlights the most influential features that contributed to the prediction through a feature importance chart.''')
+    st.header("Revenue Uplift Calculation and Confusion Matrix")
+    st.markdown('''"This section shows the net revenue uplift from the control and treatment groups, measuring the financial impact of the treatment compared to the control. It also presents the accuracy of our models with a confusion matrix for the treatment group.''')
     st.markdown("---")
 
     # First Row: Confusion Matrices 
@@ -105,18 +97,7 @@ with tab2:
     ax_cm_treatment.set_ylabel('True labels')
     st.pyplot(fig_cm_treatment)
         
-    # Feature Importance
-    st.subheader("Feature Importance")
-    feature_importance = final_model.feature_importances_
-    feature_importance_df = pd.DataFrame({
-        'Feature': X_new.columns,
-        'Importance': feature_importance
-    }).sort_values(by='Importance', ascending=False)
 
-    fig_importance, ax_importance = plt.subplots(figsize=(10, 6))
-    sns.barplot(x='Importance', y='Feature', data=feature_importance_df, ax=ax_importance)
-    ax_importance.set_title('Feature Importance')
-    st.pyplot(fig_importance)
     
     # Second Row: Net Revenue Uplift and Bar Chart 
     st.subheader("Net Revenue Uplift Calculation (After Marketing Costs)")
@@ -136,7 +117,6 @@ with tab2:
         ax_revenue.bar(['Control Group Net Revenue', 'Treatment Group Net Revenue'], [control_net_revenue, treatment_net_revenue], color=['green', 'red'])
         ax_revenue.set_ylabel('Net Revenue (€)')
         st.pyplot(fig_revenue)
-
 
 # Third Tab: Interactive Feature Prediction
 with tab3:
