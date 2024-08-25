@@ -24,7 +24,6 @@ X_new = pd.read_csv('X_new_for_inference.csv')
 y_new = pd.read_csv('y_new_actual.csv')
 treatment_group_sample = pd.read_csv('treatment_group_samples.csv')
 control_group_sample = pd.read_csv('control_group_samples.csv')
-feature_importances = pd.read_csv('feature_importances.csv')
 
 # Predict probabilities for the entire dataset
 y_proba_new = final_model.predict_proba(X_new)[:, 1]  # Get the probability for the positive class (deposit)
@@ -38,6 +37,7 @@ control_group_sample['predicted'] = (control_group_sample['predicted_proba'] >= 
 treatment_conversion_rate_sample = treatment_group_sample['actual_deposit'].mean()
 control_conversion_rate_sample = control_group_sample['actual_deposit'].mean()
 uplift = treatment_conversion_rate_sample - control_conversion_rate_sample
+
 
 # Cost and Revenue Calculations
 deposit_amount = 31.75
@@ -60,13 +60,23 @@ uplift_net_revenue = treatment_net_revenue - control_net_revenue
 report = classification_report(y_new, (y_proba_new >= 0.5).astype(int), output_dict=True)
 report_df = pd.DataFrame(report).transpose()
 
+
+# Import necessary libraries for visualization
+importances = final_model.feature_importances_
+features = X_new.columns
+
+# Create a DataFrame for better visualization
+importance_df = pd.DataFrame({'Feature': features, 'Importance': importances})
+importance_df = importance_df.sort_values(by='Importance', ascending=False)
+
+                                          
 # Streamlit UI Layout with Tabs
 st.title("Kingsman Bank Deposit Prediction Dashboard")
 
 # Define tabs
 tab1, tab2, tab3 = st.tabs(["Control vs Treatment", "Confusion Matrix & Revenue Uplift", "Interactive Feature Prediction"])
 
-# Tab 1: Control vs Treatment Dataset Comparison
+# Now you can display the results
 with tab1:
     st.subheader("Control vs Treatment Dataset Comparison")
     col1, col2 = st.columns(2)
@@ -81,32 +91,9 @@ with tab1:
         st.write(treatment_group_sample[['actual_deposit', 'predicted', 'predicted_proba']].head())
         st.write(f"Treatment Group Conversion Rate: **{treatment_conversion_rate_sample:.2%}**")
 
-# Tab 2: Confusion Matrix, Revenue Uplift, and Feature Importance
-with tab2:
-    st.header("Revenue Uplift Calculation, Confusion Matrix, and Feature Importance")
-    st.markdown('''This section shows the net revenue uplift from the control and treatment groups, measuring the financial impact of the treatment compared to the control. It also presents the accuracy of our models with a confusion matrix for the treatment group and displays the importance of each feature used by the model.''')
-    st.markdown("---")
 
-    # First Row: Net Revenue Uplift and Bar Chart 
-    st.subheader("Net Revenue Uplift Calculation (After Marketing Costs)")
-    col3, col4 = st.columns([1, 1])
 
-    with col3:
-        st.write(f"Control Group Gross Revenue: **€{control_revenue:,.2f}**")
-        st.write(f"Treatment Group Gross Revenue: **€{treatment_revenue:,.2f}**")
-        st.write(f"Control Group Marketing Cost: **€{control_cost:,.2f}**")
-        st.write(f"Treatment Group Marketing Cost: **€{treatment_cost:,.2f}**")
-        st.write(f"Control Group Net Revenue: **€{control_net_revenue:,.2f}**")
-        st.write(f"Treatment Group Net Revenue: **€{treatment_net_revenue:,.2f}**")
-        st.write(f"Net Revenue Uplift: **€{uplift_net_revenue:,.2f}**")
-
-    with col4:
-        fig_revenue, ax_revenue = plt.subplots(figsize=(6,4))
-        ax_revenue.bar(['Control Group Net Revenue', 'Treatment Group Net Revenue'], [control_net_revenue, treatment_net_revenue], color=['green', 'red'])
-        ax_revenue.set_ylabel('Net Revenue (€)')
-        st.pyplot(fig_revenue)
-        
-# Tab 2: Confusion Matrix, Revenue Uplift, and Feature Importance
+# Second Tab: Confusion Matrix, Revenue Uplift, and Feature Importance
 with tab2:
     st.header("Revenue Uplift Calculation, Confusion Matrix, and Feature Importance")
     st.markdown('''This section shows the net revenue uplift from the control and treatment groups, measuring the financial impact of the treatment compared to the control. It also presents the accuracy of our models with a confusion matrix for the treatment group and displays the importance of each feature used by the model.''')
@@ -145,12 +132,13 @@ with tab2:
         
     with col6:
         fig_imp, ax_imp = plt.subplots(figsize=(6, 4))
-        sns.barplot(x='Importance', y='Feature', data=feature_importances, palette="viridis")
+        sns.barplot(x='Importance', y='Feature', data=importance_df, palette="viridis")
         ax_imp.set_title('Feature Importance')
         st.pyplot(fig_imp)
         
    
-# Tab 3: Interactive Feature Prediction
+  
+# Third Tab: Interactive Feature Prediction
 with tab3:
     st.header("Interactive Feature Prediction")
     st.markdown('''Feel free to adjust various features and see how they affect the prediction of whether a customer will subscribe to a bank deposit product. This can help you observe and better understand the factors that influence customer decisions.''')
