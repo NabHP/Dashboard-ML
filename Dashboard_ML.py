@@ -92,8 +92,8 @@ with tab1:
 
 # Second Tab: Confusion Matrix and Revenue Uplift
 with tab2:
-    st.header("Confusion Matrix and Revenue Uplift Calculation")
-    st.markdown('''This section shows the accuracy of our models with confusion matrices for treatment groups, followed by the net revenue uplift from the control and treatment groups, which measures the financial impact of the treatment compared to the control.''')
+    st.header("Revenue Uplift Calculation, Feature Importance and Confusion Matrix")
+    st.markdown('''"This section shows the net revenue uplift from the control and treatment groups, measuring the financial impact of the treatment compared to the control. It also presents the accuracy of our models with a confusion matrix for the treatment group and highlights the most influential features that contributed to the prediction through a feature importance chart.''')
     st.markdown("---")
 
     # First Row: Confusion Matrices 
@@ -105,7 +105,18 @@ with tab2:
     ax_cm_treatment.set_ylabel('True labels')
     st.pyplot(fig_cm_treatment)
         
+    # Feature Importance
+    st.subheader("Feature Importance")
+    feature_importance = final_model.feature_importances_
+    feature_importance_df = pd.DataFrame({
+        'Feature': X_new.columns,
+        'Importance': feature_importance
+    }).sort_values(by='Importance', ascending=False)
 
+    fig_importance, ax_importance = plt.subplots(figsize=(10, 6))
+    sns.barplot(x='Importance', y='Feature', data=feature_importance_df, ax=ax_importance)
+    ax_importance.set_title('Feature Importance')
+    st.pyplot(fig_importance)
     
     # Second Row: Net Revenue Uplift and Bar Chart 
     st.subheader("Net Revenue Uplift Calculation (After Marketing Costs)")
@@ -125,6 +136,7 @@ with tab2:
         ax_revenue.bar(['Control Group Net Revenue', 'Treatment Group Net Revenue'], [control_net_revenue, treatment_net_revenue], color=['green', 'red'])
         ax_revenue.set_ylabel('Net Revenue (€)')
         st.pyplot(fig_revenue)
+
 
 # Third Tab: Interactive Feature Prediction
 with tab3:
