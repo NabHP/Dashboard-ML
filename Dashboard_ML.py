@@ -59,6 +59,17 @@ uplift_net_revenue = treatment_net_revenue - control_net_revenue
 # Classification Report
 report = classification_report(y_new, (y_proba_new >= 0.5).astype(int), output_dict=True)
 report_df = pd.DataFrame(report).transpose()
+
+
+# Import necessary libraries for visualization
+importances = final_model.feature_importances_
+features = X_new.columns
+
+# Create a DataFrame for better visualization
+importance_df = pd.DataFrame({'Feature': features, 'Importance': importances})
+importance_df = importance_df.sort_values(by='Importance', ascending=False
+
+                                          
 # Streamlit UI Layout with Tabs
 st.title("Kingsman Bank Deposit Prediction Dashboard")
 
@@ -82,10 +93,10 @@ with tab1:
 
 
 
-# Second Tab: Confusion Matrix and Revenue Uplift
+# Second Tab: Confusion Matrix, Revenue Uplift, and Feature Importance
 with tab2:
-    st.header("Revenue Uplift Calculation and Confusion Matrix")
-    st.markdown('''"This section shows the net revenue uplift from the control and treatment groups, measuring the financial impact of the treatment compared to the control. It also presents the accuracy of our models with a confusion matrix for the treatment group.''')
+    st.header("Revenue Uplift Calculation, Confusion Matrix, and Feature Importance")
+    st.markdown('''This section shows the net revenue uplift from the control and treatment groups, measuring the financial impact of the treatment compared to the control. It also presents the accuracy of our models with a confusion matrix for the treatment group and displays the importance of each feature used by the model.''')
     st.markdown("---")
 
     # First Row: Net Revenue Uplift and Bar Chart 
@@ -107,14 +118,23 @@ with tab2:
         ax_revenue.set_ylabel('Net Revenue (€)')
         st.pyplot(fig_revenue)
         
-    # First Row: Confusion Matrices 
-    st.subheader("Confusion Matrix - Treatment Group")
-    cm_treatment = confusion_matrix(treatment_group_sample['actual_deposit'], treatment_group_sample['predicted'])
-    fig_cm_treatment, ax_cm_treatment = plt.subplots(figsize=(5, 3))
-    sns.heatmap(cm_treatment, annot=True, fmt="d", cmap="Blues", ax=ax_cm_treatment)
-    ax_cm_treatment.set_xlabel('Predicted labels')
-    ax_cm_treatment.set_ylabel('True labels')
-    st.pyplot(fig_cm_treatment)
+    # Second Row: Confusion Matrix and Feature Importance
+    st.subheader("Confusion Matrix - Treatment Group & Feature Importance")
+    col5, col6 = st.columns([1, 1])
+
+    with col5:
+        cm_treatment = confusion_matrix(treatment_group_sample['actual_deposit'], treatment_group_sample['predicted'])
+        fig_cm_treatment, ax_cm_treatment = plt.subplots(figsize=(5, 3))
+        sns.heatmap(cm_treatment, annot=True, fmt="d", cmap="Blues", ax=ax_cm_treatment)
+        ax_cm_treatment.set_xlabel('Predicted labels')
+        ax_cm_treatment.set_ylabel('True labels')
+        st.pyplot(fig_cm_treatment)
+        
+    with col6:
+        fig_imp, ax_imp = plt.subplots(figsize=(6, 4))
+        sns.barplot(x='Importance', y='Feature', data=importance_df, palette="viridis")
+        ax_imp.set_title('Feature Importance')
+        st.pyplot(fig_imp)
         
    
   
