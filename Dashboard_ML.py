@@ -22,16 +22,12 @@ model_path = 'kingsman_model_bank_deposit_lgbm_tuned.sav'
 final_model = joblib.load(open(model_path, 'rb'))
 X_new = pd.read_csv('X_new_for_inference.csv')
 y_new = pd.read_csv('y_new_actual.csv')
-treatment_group_sample = pd.read_csv('treatment_group_sample.csv')
-control_group_sample = pd.read_csv('control_group_sample.csv')
+treatment_group_sample = pd.read_csv('treatment_group_samples.csv')
+control_group_sample = pd.read_csv('control_group_samples.csv')
 
 # Predict probabilities for the entire dataset
 y_proba_new = final_model.predict_proba(X_new)[:, 1]  # Get the probability for the positive class (deposit)
 X_new['predicted_proba'] = y_proba_new
-
-# Simulating actual outcomes for the Treatment Group
-treatment_group_sample['actual_deposit'] = y_new.loc[treatment_group_sample.index]
-control_group_sample['actual_deposit'] = y_new.loc[control_group_sample.index]
 
 # Add predicted labels based on a threshold (e.g., 0.5)
 treatment_group_sample['predicted'] = (treatment_group_sample['predicted_proba'] >= 0.5).astype(int)
