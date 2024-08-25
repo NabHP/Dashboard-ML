@@ -68,6 +68,8 @@ tab1, tab2, tab3 = st.tabs(["Control vs Treatment", "Confusion Matrix & Revenue 
 # Tab 1: Control vs Treatment Dataset Comparison
 with tab1:
     st.subheader("Control vs Treatment Dataset Comparison")
+    st.markdown('''These tables allow you to compare the control and treatment groups based on their predicted probabilities, actual outcomes, and conversion rates. The treatment group consists of customers who are more likely to subscribe to a deposit product, while the control group includes those less likely.''')
+    st.markdown("---")
     col1, col2 = st.columns(2)
 
     with col1:
