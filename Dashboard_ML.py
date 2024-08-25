@@ -22,7 +22,7 @@ model_path = 'kingsman_model_bank_deposit_lgbm_tuned.sav'
 final_model = joblib.load(open(model_path, 'rb'))
 X_new = pd.read_csv('X_new_for_inference.csv')
 y_new = pd.read_csv('y_new_actual.csv')
-treatment_group_sample = pd.read_csv('treatment_group_sample1000.csv')
+treatment_group_sample1000 = pd.read_csv('treatment_group_sample1000.csv')
 control_group_sample = pd.read_csv('control_group_sample1000.csv')
 
 #Sorting the treatment_group sample
