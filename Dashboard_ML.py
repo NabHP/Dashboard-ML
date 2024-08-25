@@ -182,6 +182,7 @@ with tab3:
 
    # Add slider for threshold adjustment
     st.subheader("Adjust Prediction Threshold")
+    st.markdown("The default setting for predicting if a customer will make a deposit is **0.5**. You can adjust this threshold to see how it impacts the prediction.")
     threshold = st.slider("Select Threshold", min_value=0.0, max_value=1.0, value=0.5, step=0.01)
 
     # Convert user input to DataFrame and make prediction with the selected threshold
