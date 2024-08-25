@@ -38,7 +38,6 @@ treatment_conversion_rate_sample = treatment_group_sample['actual_deposit'].mean
 control_conversion_rate_sample = control_group_sample['actual_deposit'].mean()
 uplift = treatment_conversion_rate_sample - control_conversion_rate_sample
 
-
 # Cost and Revenue Calculations
 deposit_amount = 31.75
 marketing_cost = 1.7228  # Cost per customer
@@ -60,43 +59,33 @@ uplift_net_revenue = treatment_net_revenue - control_net_revenue
 report = classification_report(y_new, (y_proba_new >= 0.5).astype(int), output_dict=True)
 report_df = pd.DataFrame(report).transpose()
 
-
-# Import necessary libraries for visualization
-importances = final_model.feature_importances_
-features = X_new.columns
-
-# Create a DataFrame for better visualization
-importance_df = pd.DataFrame({'Feature': features, 'Importance': importances})
-importance_df = importance_df.sort_values(by='Importance', ascending=False)
-
-                                          
 # Streamlit UI Layout with Tabs
 st.title("Kingsman Bank Deposit Prediction Dashboard")
 
 # Define tabs
 tab1, tab2, tab3 = st.tabs(["Control vs Treatment", "Confusion Matrix & Revenue Uplift", "Interactive Feature Prediction"])
 
-# Now you can display the results
+# Tab 1: Control vs Treatment Dataset Comparison
 with tab1:
     st.subheader("Control vs Treatment Dataset Comparison")
     col1, col2 = st.columns(2)
 
     with col1:
         st.subheader("Control Group")
+        st.write(f"Total Data: **{len(control_group_sample)}**")
         st.write(control_group_sample[['actual_deposit', 'predicted', 'predicted_proba']].head())
         st.write(f"Control Group Conversion Rate: **{control_conversion_rate_sample:.2%}**")
 
     with col2:
         st.subheader("Treatment Group")
+        st.write(f"Total Data: **{len(treatment_group_sample)}**")
         st.write(treatment_group_sample[['actual_deposit', 'predicted', 'predicted_proba']].head())
         st.write(f"Treatment Group Conversion Rate: **{treatment_conversion_rate_sample:.2%}**")
 
-
-
-# Second Tab: Confusion Matrix, Revenue Uplift, and Feature Importance
+# Tab 2: Confusion Matrix, Revenue Uplift
 with tab2:
-    st.header("Revenue Uplift Calculation, Confusion Matrix, and Feature Importance")
-    st.markdown('''This section shows the net revenue uplift from the control and treatment groups, measuring the financial impact of the treatment compared to the control. It also presents the accuracy of our models with a confusion matrix for the treatment group and displays the importance of each feature used by the model.''')
+    st.header("Revenue Uplift Calculation and Confusion Matrix")
+    st.markdown('''This section shows the net revenue uplift from the control and treatment groups, measuring the financial impact of the treatment compared to the control. It also presents the accuracy of our models with a confusion matrix for the treatment group.''')
     st.markdown("---")
 
     # First Row: Net Revenue Uplift and Bar Chart 
@@ -118,8 +107,8 @@ with tab2:
         ax_revenue.set_ylabel('Net Revenue (€)')
         st.pyplot(fig_revenue)
         
-    # Second Row: Confusion Matrix and Feature Importance
-    st.subheader("Confusion Matrix - Treatment Group & Feature Importance")
+    # Second Row: Confusion Matrix
+    st.subheader("Confusion Matrix - Treatment Group")
     col5, col6 = st.columns([1, 1])
 
     with col5:
@@ -129,16 +118,8 @@ with tab2:
         ax_cm_treatment.set_xlabel('Predicted labels')
         ax_cm_treatment.set_ylabel('True labels')
         st.pyplot(fig_cm_treatment)
-        
-    with col6:
-        fig_imp, ax_imp = plt.subplots(figsize=(6, 4))
-        sns.barplot(x='Importance', y='Feature', data=importance_df, palette="viridis")
-        ax_imp.set_title('Feature Importance')
-        st.pyplot(fig_imp)
-        
-   
-  
-# Third Tab: Interactive Feature Prediction
+
+# Tab 3: Interactive Feature Prediction
 with tab3:
     st.header("Interactive Feature Prediction")
     st.markdown('''Feel free to adjust various features and see how they affect the prediction of whether a customer will subscribe to a bank deposit product. This can help you observe and better understand the factors that influence customer decisions.''')
@@ -197,7 +178,7 @@ with tab3:
                 unique_values = X_new[feature].unique()
                 user_input[feature] = st.selectbox(f"{feature}", unique_values)
 
-    # Add slider for threshold adjustment
+   # Add slider for threshold adjustment
     st.subheader("Adjust Prediction Threshold")
     threshold = st.slider("Select Threshold", min_value=0.0, max_value=1.0, value=0.5, step=0.01)
 
