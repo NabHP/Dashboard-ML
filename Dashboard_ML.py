@@ -83,12 +83,12 @@ with tab1:
     with col1:
         st.subheader("Control Group")
         st.write(control_group_sample[['actual_deposit', 'predicted', 'predicted_proba']].head())
-        st.write(f"Control Group Conversion Rate: **{control_conversion_rate:.2%}**")
+        st.write(f"Control Group Conversion Rate: **{control_conversion_rate_sample:.2%}**")
 
     with col2:
         st.subheader("Treatment Group")
         st.write(treatment_group_sample[['actual_deposit', 'predicted', 'predicted_proba']].head())
-        st.write(f"Treatment Group Conversion Rate: **{treatment_conversion_rate:.2%}**")
+        st.write(f"Treatment Group Conversion Rate: **{treatment_conversion_rate_sample:.2%}**")
 
 # Second Tab: Confusion Matrix and Revenue Uplift
 with tab2:
