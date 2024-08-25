@@ -12,4 +12,5 @@ missingno
 ipython
 imbalanced-learn
 category_encoders
+lime
 lightgbm
