@@ -35,6 +35,7 @@ control_group = X_new.drop(treatment_group.index)
 
 # Ensure randomness in sample selection with different sources for treatment and control
 treatment_group_sample = treatment_group.sample(n=1000, random_state=123).reset_index(drop=True)
+treatment_group_sample = treatment_group_sample.sort_values(by='predicted_proba', ascending=False).reset_index(drop=True)
 control_group_sample = control_group.sample(n=1000, random_state=123).reset_index(drop=True)
 
 # Simulating actual outcomes for the Treatment and Control Groups based on the sample
