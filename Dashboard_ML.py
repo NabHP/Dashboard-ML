@@ -26,6 +26,7 @@ X_new = pd.read_csv('X_new_for_inference.csv')
 y_new = pd.read_csv('y_new_actual.csv')
 treatment_group_sample = pd.read_csv('treatment_group_samples.csv')
 control_group_sample = pd.read_csv('control_group_samples.csv')
+feature_importances = pd.read_csv('feature_importances.csv')
 
 # Predict probabilities for the entire dataset
 y_proba_new = final_model.predict_proba(X_new)[:, 1]  # Get the probability for the positive class (deposit)
