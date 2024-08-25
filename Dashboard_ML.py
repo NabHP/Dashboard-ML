@@ -25,7 +25,7 @@ y_new = pd.read_csv('y_new_actual.csv')
 treatment_group_sample = pd.read_csv('treatment_group_sample1000.csv')
 control_group_sample = pd.read_csv('control_group_sample1000.csv')
 
-# Predict probabilities using the model for the treatment and control samples
+# Predict probabilities using the model for the treatment and control sample
 treatment_group_sample['predicted_proba'] = final_model.predict_proba(treatment_group_sample.drop(columns=['predicted_deposit', 'predicted_proba']))[:, 1]
 control_group_sample['predicted_proba'] = final_model.predict_proba(control_group_sample.drop(columns=['predicted_deposit', 'predicted_proba']))[:, 1]
 
@@ -41,6 +41,7 @@ control_group_sample['predicted'] = (control_group_sample['predicted_proba'] >= 
 treatment_conversion_rate_sample = treatment_group_sample['actual_deposit'].mean()
 control_conversion_rate_sample = control_group_sample['actual_deposit'].mean()
 uplift = treatment_conversion_rate_sample - control_conversion_rate_sample
+
 
 # Cost and Revenue Calculations
 deposit_amount = 31.75
