@@ -88,18 +88,7 @@ with tab2:
     st.markdown('''"This section shows the net revenue uplift from the control and treatment groups, measuring the financial impact of the treatment compared to the control. It also presents the accuracy of our models with a confusion matrix for the treatment group.''')
     st.markdown("---")
 
-    # First Row: Confusion Matrices 
-    st.subheader("Confusion Matrix - Treatment Group")
-    cm_treatment = confusion_matrix(treatment_group_sample['actual_deposit'], treatment_group_sample['predicted'])
-    fig_cm_treatment, ax_cm_treatment = plt.subplots()
-    sns.heatmap(cm_treatment, annot=True, fmt="d", cmap="Blues", ax=ax_cm_treatment)
-    ax_cm_treatment.set_xlabel('Predicted labels')
-    ax_cm_treatment.set_ylabel('True labels')
-    st.pyplot(fig_cm_treatment)
-        
-
-    
-    # Second Row: Net Revenue Uplift and Bar Chart 
+    # First Row: Net Revenue Uplift and Bar Chart 
     st.subheader("Net Revenue Uplift Calculation (After Marketing Costs)")
     col3, col4 = st.columns([1, 1])
 
@@ -117,7 +106,18 @@ with tab2:
         ax_revenue.bar(['Control Group Net Revenue', 'Treatment Group Net Revenue'], [control_net_revenue, treatment_net_revenue], color=['green', 'red'])
         ax_revenue.set_ylabel('Net Revenue (€)')
         st.pyplot(fig_revenue)
-
+        
+    # First Row: Confusion Matrices 
+    st.subheader("Confusion Matrix - Treatment Group")
+    cm_treatment = confusion_matrix(treatment_group_sample['actual_deposit'], treatment_group_sample['predicted'])
+    fig_cm_treatment, ax_cm_treatment = plt.subplots(figsize=(5, 3))
+    sns.heatmap(cm_treatment, annot=True, fmt="d", cmap="Blues", ax=ax_cm_treatment)
+    ax_cm_treatment.set_xlabel('Predicted labels')
+    ax_cm_treatment.set_ylabel('True labels')
+    st.pyplot(fig_cm_treatment)
+        
+   
+  
 # Third Tab: Interactive Feature Prediction
 with tab3:
     st.header("Interactive Feature Prediction")
