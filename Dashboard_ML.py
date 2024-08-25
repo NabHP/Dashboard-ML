@@ -98,7 +98,7 @@ with tab2:
 
     # First Row: Confusion Matrices 
     st.subheader("Confusion Matrix - Treatment Group")
-    cm_treatment = confusion_matrix(treatment_group['actual_deposit'], treatment_group['predicted'])
+    cm_treatment = confusion_matrix(treatment_group_sample['actual_deposit'], treatment_group_sample['predicted'])
     fig_cm_treatment, ax_cm_treatment = plt.subplots()
     sns.heatmap(cm_treatment, annot=True, fmt="d", cmap="Blues", ax=ax_cm_treatment)
     ax_cm_treatment.set_xlabel('Predicted labels')
