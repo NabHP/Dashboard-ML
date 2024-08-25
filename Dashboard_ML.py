@@ -190,7 +190,7 @@ with tab3:
     user_prediction = (user_proba >= 0.5).astype(int)
 
     st.subheader("Prediction Results")
-    st.write(f"Predicted Probability of Deposit: **{user_proba[0]:.2f}**")
+    st.write(f"Successful Rate of Deposit: **{user_proba[0] * 100:.2f}%**")
     st.write(f"Predicted Deposit: **{'Yes' if user_prediction[0] == 1 else 'No'}**")
 
     # Classification Report
