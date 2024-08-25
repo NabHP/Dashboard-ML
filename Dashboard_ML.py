@@ -187,7 +187,6 @@ with tab3:
     user_prediction = (user_proba >= threshold).astype(int)
 
     st.subheader("Prediction Results")
-    st.write(f"Successful Rate of Deposit: **{user_proba[0] * 100:.2f}%**")
     st.write(f"Predicted Deposit: **{'Yes' if user_prediction[0] == 1 else 'No'}** at a threshold of {threshold:.2f}")
 
     # Classification Report
