@@ -26,7 +26,7 @@ treatment_group_sample1000 = pd.read_csv('treatment_group_sample1000.csv')
 control_group_sample = pd.read_csv('control_group_sample1000.csv')
 
 #Sorting the treatment_group sample
-treatment_group_sample = treatment_group_sample1000.sort_values(by='predicted_proba', ascending=False)
+treatment_group_sample = treatment_group_sample1000.sort_values(by='predicted_proba', ascending=False).iloc[:len(treatment_group_sample1000) // 2]
 
 # Predict probabilities for the entire dataset
 y_proba_new = final_model.predict_proba(X_new)[:, 1]  # Get the probability for the positive class (deposit)
